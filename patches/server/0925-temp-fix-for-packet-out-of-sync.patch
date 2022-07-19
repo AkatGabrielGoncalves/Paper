@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AkatGabrielGoncalves <gabrielmatheus9a@gmail.com>
+Date: Mon, 18 Jul 2022 10:43:07 -0300
+Subject: [PATCH] temp fix for packet out of sync
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index f342043f4a8aef7e757571ead0e0218fe7e5ee58..3ab0a18c3a4eaa8cdf4d7ea8e77a39aee8a4e2c1 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -2160,17 +2160,16 @@ public class ServerGamePacketListenerImpl implements ServerPlayerConnection, Ser
+     private boolean tryHandleChat(String s, Instant instant) {
+         if (!this.updateChatOrder(instant)) {
+             ServerGamePacketListenerImpl.LOGGER.warn("{} sent out-of-order chat: '{}'; {} > {}", this.player.getName().getString(), s, this.lastChatTimeStamp.get().getEpochSecond(), instant.getEpochSecond()); // Paper
+-            this.server.scheduleOnMain(() -> { // Paper - push to main
+-            this.disconnect(Component.translatable("multiplayer.disconnect.out_of_order_chat"));
+-            }); // Paper - push to main
+-            return false;
++            // this.server.scheduleOnMain(() -> { // Paper - push to main
++            // this.disconnect(Component.translatable("multiplayer.disconnect.out_of_order_chat"));
++            // }); // Paper - push to main
++            // return false;
+         } else {
+             if (this.isChatExpired(instant)) {
+                 ServerGamePacketListenerImpl.LOGGER.warn("{} sent expired chat: '{}'. Is the client/server system time unsynchronized? c: {} s: {}", this.player.getName().getString(), s, instant.getEpochSecond(), Instant.now().getEpochSecond()); // Paper
+             }
+-
+-            return this.resetLastActionTime();
+         }
++        return this.resetLastActionTime();
+     }
+ 
+     private boolean isChatExpired(Instant timestamp) {
